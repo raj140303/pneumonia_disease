@@ -1,0 +1,80 @@
+{% extends "import.html" %}
+
+{% block content %}
+<center>
+    <h2>Pneumonia Detection Using Deep Learning</h2>
+    <br>
+
+    <!-- File Upload Section -->
+    <form id="upload-file" method="POST" enctype="multipart/form-data">
+        <input type="file" name="file" class="btn btn-success" id="imageUpload" accept=".png, .jpg, .jpeg">
+    </form>
+
+    <!-- Image Preview Section -->
+    <div class="image-section" style="display:none;">
+        <img id="imagePreview" class="img-responsive" src="#" style="width:300px; height:300px; margin-top: 20px;">
+        <div style="margin-top: 20px;">
+            <button type="button" class="btn btn-info btn-lg" id="btn-predict">Predict!</button>
+        </div>
+    </div>
+
+    <!-- Loader Section -->
+    <div class="loader" style="display:none; margin-top: 20px;">
+        <p>Processing...</p>
+    </div>
+
+    <!-- Result Section -->
+    <h3 id="result" style="margin-top: 20px;">
+        <span></span>
+    </h3>
+</center>
+
+<!-- JavaScript -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $("#imageUpload").change(function () {
+            var input = this;
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    $("#imagePreview").attr("src", e.target.result);
+                    $(".image-section").show();
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        });
+
+        $("#btn-predict").click(function () {
+            var form_data = new FormData();
+            var file_data = $("#imageUpload")[0].files[0];
+
+            if (!file_data) {
+                alert("Please upload an image first.");
+                return;
+            }
+
+            form_data.append("file", file_data);
+            $(".loader").show();
+
+            $.ajax({
+                type: "POST",
+                url: "/predict",
+                data: form_data,
+                contentType: false,
+                cache: false,
+                processData: false,
+                success: function (data) {
+                    $(".loader").hide();
+                    $("#result span").text("Prediction: " + data.prediction);
+                },
+                error: function (err) {
+                    $(".loader").hide();
+                    $("#result span").text("Error: " + err.responseJSON.error);
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}
+
