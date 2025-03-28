@@ -1,10 +1,6 @@
 # Ignore the virtual environment
 pvenv/
 
-# Ignore model weights and trained models
-model_weights/
-*.h5
-*.keras
 
 # Ignore dataset folder
 pneumonia-dataset/
